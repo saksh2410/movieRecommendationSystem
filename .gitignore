@@ -1,2 +1,7 @@
 #IDE Files
 .vscode
+.venv
+
+# Python-generated files
+__pycache__/
+*.pyc
