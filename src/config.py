@@ -17,3 +17,6 @@ CREDITS = RAW_DATA_PATH / "tmdb_5000_credits.csv"
 KEEP_COLS = ['title','genres','keywords','overview', 'tagline', 'cast', 'crew']
 # Reformatting attributes
 CLEANUP_COLS = ['genres', 'keywords', 'cast']
+
+# Model hyperparameters
+TOP_N = 5
