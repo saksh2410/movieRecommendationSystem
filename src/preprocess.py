@@ -1,6 +1,7 @@
 # imports
 import pandas as pd
 import ast
+from nltk.stem import PorterStemmer
 import config
 
 
@@ -57,15 +58,15 @@ def clean_dataframe(df: pd.DataFrame):
 
         Returns
         ----------
-        List
+        str
             cleaned up object
         """
         string_list = ast.literal_eval(obj)
-        data = []
+        data = ""
         for item in string_list:
             # Formatting strings by stripping spaces in list attributes to avoid vectorizing them separately.
             # For example "Tom  Cruise" and "Tom Holland" should be separate single vectors without semantic similarities.
-            data.append(item["name"].replace(" ", ""))
+            data += item["name"].replace(" ", "") + " "
         return data
 
     # format data values for certain columns
@@ -86,7 +87,81 @@ def clean_dataframe(df: pd.DataFrame):
         for crew_member in ast.literal_eval(crew):
             if crew_member["job"] == "Director":
                 return crew_member["name"].replace(" ", "")
+        return ""
 
     df["director"] = df["crew"].apply(fetch_director)
     df = df.drop("crew", axis=1)
+    return df
+
+
+def generate_tags(df: pd.DataFrame):
+    """
+    function to generate tags by combining relevant text columns.
+
+    Args
+    ----------
+    df: pandas.Dataframe
+        Dataframe to generate tags for
+
+    Returns
+    ----------
+    pandas.Dataframe
+        Dataframe with an additional 'tags' column
+    """
+    df_tagged = pd.DataFrame(
+        {   "title": df["title"],
+            "tags": (
+                df["overview"]
+                + " "
+                + df["tagline"]
+                + " "
+                + df["genres"].apply(lambda x: " ".join(x))
+                + " "
+                + df["keywords"].apply(lambda x: " ".join(x))
+                + " "
+                + df["cast"].apply(lambda x: " ".join(x))
+                + " "
+                + df["director"]
+            )
+        }
+    )
+    return df_tagged
+
+
+def stem_tags(df: pd.DataFrame):
+    """
+    function to perform stemming on the tags column.
+
+    Args
+    ----------
+    df: pandas.Dataframe
+        Dataframe to perform stemming on
+
+    Returns
+    ----------
+    pandas.Dataframe
+        Dataframe with stemmed tags
+    """
+    ps = PorterStemmer()
+
+    def stem_text(text: str):
+        """
+        function to stem the input text.
+
+        Args
+        ----------
+        text: str
+            text to be stemmed
+
+        Returns
+        ----------
+        str
+            stemmed text
+        """
+        y = []
+        for word in text.split():
+            y.append(ps.stem(word))
+        return " ".join(y)
+
+    df["tags"] = df["tags"].apply(stem_text)
     return df

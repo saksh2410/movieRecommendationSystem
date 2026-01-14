@@ -1,10 +1,12 @@
 # imports
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import math
 import config
 
 
-def create_count_matrix(corpus):
+def create_count_matrix(corpus: list[str]):
     """
     Function to create a count matrix from the given corpus using CountVectorizer.
 
@@ -18,11 +20,12 @@ def create_count_matrix(corpus):
     numpy.ndarray
         Count matrix representing the frequency of terms in the corpus.
     """
-    vectorizer = CountVectorizer(stop_words='english')
+    vectorizer = CountVectorizer(stop_words="english")
     count_matrix = vectorizer.fit_transform(corpus).toarray()
     return count_matrix
 
-def compute_tfidf(matrix):
+
+def compute_tfidf(matrix: np.ndarray):
     """
     Function to compute the TF-IDF representation from the count matrix.
 
@@ -36,8 +39,6 @@ def compute_tfidf(matrix):
     numpy.ndarray
         TF-IDF matrix.
     """
-    import numpy as np
-    import math
 
     nrow = matrix.shape[0]
     idf = []
@@ -55,7 +56,8 @@ def compute_tfidf(matrix):
 
     return tfidf_matrix
 
-def calculate_cosine_similarity(matrix):
+
+def calculate_cosine_similarity(matrix: np.ndarray):
     """
     Function to calculate the cosine similarity between rows of the given matrix.
 
@@ -72,7 +74,13 @@ def calculate_cosine_similarity(matrix):
     similarity_matrix = cosine_similarity(matrix)
     return similarity_matrix
 
-def get_recommendations(similarity_matrix, titles, target_title, top_n=config.TOP_N):
+
+def get_recommendations(
+    similarity_matrix: np.ndarray,
+    titles: list[str],
+    target_title: str,
+    top_n=config.TOP_N,
+):
     """
     Function to get movie recommendations based on cosine similarity.
 
@@ -98,7 +106,8 @@ def get_recommendations(similarity_matrix, titles, target_title, top_n=config.TO
     target_index = titles.index(target_title)
     similarity_scores = list(enumerate(similarity_matrix[target_index]))
     similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-    
-    recommended_movies = [(titles[i], score) for i, score in similarity_scores[1:top_n+1]]
-    return recommended_movies
 
+    recommended_movies = [
+        (titles[i], score) for i, score in similarity_scores[1 : top_n + 1]
+    ]
+    return recommended_movies
