@@ -1,18 +1,12 @@
 # imports
 import pandas as pd
-from pathlib import Path
+import config
 
-# raw data paths
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
-MOVIES = RAW_DATA_PATH / "tmdb_5000_movies.csv"
-CREDITS = RAW_DATA_PATH / "tmdb_5000_credits.csv"
-
-def load_movies(path=MOVIES):
+def load_movies(path=config.MOVIES):
     """
     Load the movies dataset from a CSV file.
 
-    Parameters
+    Args
     ----------
     path : str, optional
         File path to the movies CSV file, by default.
@@ -24,7 +18,7 @@ def load_movies(path=MOVIES):
     """
     return pd.read_csv(path)
 
-def load_credits(path=CREDITS):
+def load_credits(path=config.CREDITS):
     """
     Load the credits dataset from a CSV file.
 
